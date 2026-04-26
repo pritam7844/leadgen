@@ -1,0 +1,45 @@
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+
+# Node.js (Frontend & Scraper)
+node_modules/
+dist/
+build/
+.npm
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Java / Maven (Backend)
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.log
+.mvn/wrapper/
+.mvn/
+mvnw
+mvnw.cmd
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*.iml
+.classpath
+.project
+.settings/
+.factorypath
+
+# Scraper specific
+/scraper-service/node_modules/
+/frontend/node_modules/

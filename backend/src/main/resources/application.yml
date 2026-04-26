@@ -1,0 +1,53 @@
+spring:
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27017/leadflow}
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
+    password: ${REDIS_PASSWORD:}
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+  mail:
+    host: ${SMTP_HOST:smtp.gmail.com}
+    port: ${SMTP_PORT:587}
+    username: ${SMTP_USER:}
+    password: ${SMTP_PASS:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+server:
+  port: ${PORT:8080}
+
+jwt:
+  secret: ${JWT_SECRET:change-this-secret-in-production-minimum-32-chars}
+  access-expiry: 900000
+  refresh-expiry: 604800000
+
+encryption:
+  key: ${AES_KEY:0123456789abcdef0123456789abcdef}
+
+aws:
+  s3:
+    bucket: ${S3_BUCKET:leadflow-uploads}
+    region: ${AWS_REGION:ap-south-1}
+  access-key: ${AWS_ACCESS_KEY:}
+  secret-key: ${AWS_SECRET_KEY:}
+
+scraper:
+  service:
+    url: ${SCRAPER_SERVICE_URL:http://localhost:3001}
+
+rate-limit:
+  requests-per-minute: 100
+
+logging:
+  level:
+    com.leadflow: DEBUG
+    org.springframework.security: WARN

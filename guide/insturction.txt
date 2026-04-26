@@ -1,0 +1,693 @@
+Here's your full prompt. Copy this entire thing into Cursor or Claude Code:
+
+---
+
+## LEADFLOW — FULL PROJECT SCAFFOLD PROMPT
+
+```
+You are a senior full-stack engineer. Scaffold a complete production-ready 
+project called "LeadFlow" — a lead generation and outreach automation platform.
+
+=============================================================
+TECH STACK
+=============================================================
+
+Backend:  Spring Boot 3.x (Java 17)
+Frontend: React 18 + Vite + TailwindCSS
+Database: MongoDB (via Spring Data MongoDB)
+Cache:    Redis (for queues and rate limiting)
+Auth:     JWT (access token 15min + refresh token 7 days)
+Storage:  AWS S3 (for CSV uploads)
+Build:    Maven for backend, npm for frontend
+
+=============================================================
+PROJECT STRUCTURE
+=============================================================
+
+leadflow/
+├── backend/                         (Spring Boot)
+│   ├── src/main/java/com/leadflow/
+│   │   ├── LeadFlowApplication.java
+│   │   ├── config/
+│   │   │   ├── SecurityConfig.java
+│   │   │   ├── MongoConfig.java
+│   │   │   ├── RedisConfig.java
+│   │   │   ├── CorsConfig.java
+│   │   │   └── S3Config.java
+│   │   ├── auth/
+│   │   │   ├── AuthController.java
+│   │   │   ├── AuthService.java
+│   │   │   ├── JwtService.java
+│   │   │   ├── JwtFilter.java
+│   │   │   └── dto/
+│   │   │       ├── RegisterRequest.java
+│   │   │       ├── LoginRequest.java
+│   │   │       └── AuthResponse.java
+│   │   ├── user/
+│   │   │   ├── User.java            (MongoDB document)
+│   │   │   ├── UserRepository.java
+│   │   │   ├── UserService.java
+│   │   │   └── UserController.java
+│   │   ├── workspace/
+│   │   │   ├── Workspace.java
+│   │   │   ├── WorkspaceRepository.java
+│   │   │   └── WorkspaceService.java
+│   │   ├── lead/
+│   │   │   ├── Lead.java
+│   │   │   ├── LeadRepository.java
+│   │   │   ├── LeadService.java
+│   │   │   ├── LeadController.java
+│   │   │   └── dto/
+│   │   │       ├── LeadRequest.java
+│   │   │       ├── LeadResponse.java
+│   │   │       └── LeadFilterRequest.java
+│   │   ├── source/
+│   │   │   ├── Source.java
+│   │   │   ├── SourceRepository.java
+│   │   │   ├── SourceService.java
+│   │   │   ├── SourceController.java
+│   │   │   └── types/
+│   │   │       ├── SourceType.java  (enum: CSV, SCRAPER_API, 
+│   │   │       │                     CUSTOM_SCRAPER, PLATFORM)
+│   │   │       ├── CsvImportService.java
+│   │   │       ├── ScraperApiService.java
+│   │   │       ├── CustomScraperService.java
+│   │   │       └── PlatformSyncService.java
+│   │   ├── integration/
+│   │   │   ├── IntegrationConfig.java    (MongoDB document)
+│   │   │   ├── IntegrationRepository.java
+│   │   │   ├── IntegrationService.java
+│   │   │   ├── IntegrationController.java
+│   │   │   ├── GenericApiRunner.java
+│   │   │   └── connectors/
+│   │   │       ├── ApolloConnector.java
+│   │   │       ├── GoHighLevelConnector.java
+│   │   │       ├── HubSpotConnector.java
+│   │   │       ├── ApifyConnector.java
+│   │   │       └── BaseConnector.java   (interface all connectors implement)
+│   │   ├── scraper/
+│   │   │   ├── ScraperConfig.java
+│   │   │   ├── ScraperRepository.java
+│   │   │   ├── ScraperService.java
+│   │   │   ├── ScraperController.java
+│   │   │   └── sources/
+│   │   │       ├── ScraperSource.java   (enum: LINKEDIN, INDIAMART, 
+│   │   │       │                         JUSTDIAL, TRADEINDIA, SULEKHA)
+│   │   │       ├── LinkedInScraper.java
+│   │   │       ├── IndiaМartScraper.java
+│   │   │       └── BaseScraperSource.java
+│   │   ├── arearun/
+│   │   │   ├── AreaRunRequest.java
+│   │   │   ├── AreaRunResult.java
+│   │   │   ├── AreaRunService.java
+│   │   │   └── AreaRunController.java
+│   │   ├── apikey/
+│   │   │   ├── ApiKey.java
+│   │   │   ├── ApiKeyRepository.java
+│   │   │   ├── ApiKeyService.java      (AES-256 encryption/decryption)
+│   │   │   └── ApiKeyController.java
+│   │   ├── automation/
+│   │   │   ├── campaign/
+│   │   │   │   ├── Campaign.java
+│   │   │   │   ├── CampaignRepository.java
+│   │   │   │   ├── CampaignService.java
+│   │   │   │   └── CampaignController.java
+│   │   │   ├── email/
+│   │   │   │   ├── EmailProvider.java   (MongoDB document - SMTP config)
+│   │   │   │   ├── EmailProviderRepository.java
+│   │   │   │   ├── EmailService.java
+│   │   │   │   └── EmailController.java
+│   │   │   ├── calling/
+│   │   │   │   ├── CallProvider.java    (enum: TWILIO, EXOTEL, PLIVO, 
+│   │   │   │   │                         VAPI, KNOWLARITY, SERVETEL)
+│   │   │   │   ├── CallConfig.java      (MongoDB document)
+│   │   │   │   ├── CallService.java
+│   │   │   │   ├── CallController.java
+│   │   │   │   └── providers/
+│   │   │   │       ├── TwilioCallProvider.java
+│   │   │   │       ├── ExotelCallProvider.java
+│   │   │   │       ├── PlivoCallProvider.java
+│   │   │   │       └── BaseCallProvider.java  (interface)
+│   │   │   ├── whatsapp/
+│   │   │   │   ├── WhatsAppProvider.java (enum: TWILIO_WA, WATI, 
+│   │   │   │   │                          INTERAKT, 360DIALOG, GUPSHUP)
+│   │   │   │   ├── WhatsAppConfig.java
+│   │   │   │   ├── WhatsAppService.java
+│   │   │   │   ├── WhatsAppController.java
+│   │   │   │   └── providers/
+│   │   │   │       ├── TwilioWhatsAppProvider.java
+│   │   │   │       ├── WatiProvider.java
+│   │   │   │       └── BaseWhatsAppProvider.java (interface)
+│   │   │   └── meeting/
+│   │   │       ├── MeetingProvider.java (enum: CALENDLY, CAL_COM, GOOGLE)
+│   │   │       ├── MeetingConfig.java
+│   │   │       ├── MeetingService.java
+│   │   │       └── MeetingController.java
+│   │   ├── subscription/
+│   │   │   ├── Subscription.java
+│   │   │   ├── SubscriptionRepository.java
+│   │   │   ├── SubscriptionService.java
+│   │   │   ├── SubscriptionController.java
+│   │   │   └── plans/
+│   │   │       ├── Plan.java            (enum: FREE, PRO, ENTERPRISE)
+│   │   │       ├── RazorpayService.java
+│   │   │       └── StripeService.java
+│   │   ├── dashboard/
+│   │   │   ├── DashboardService.java
+│   │   │   └── DashboardController.java
+│   │   └── common/
+│   │       ├── exception/
+│   │       │   ├── GlobalExceptionHandler.java
+│   │       │   ├── LeadFlowException.java
+│   │       │   └── ErrorResponse.java
+│   │       ├── util/
+│   │       │   ├── EncryptionUtil.java   (AES-256)
+│   │       │   ├── PaginationUtil.java
+│   │       │   └── ValidationUtil.java
+│   │       └── response/
+│   │           └── ApiResponse.java      (standard wrapper)
+│   └── src/main/resources/
+│       └── application.yml
+│
+├── frontend/                            (React + Vite)
+│   ├── src/
+│   │   ├── main.jsx
+│   │   ├── App.jsx
+│   │   ├── routes/
+│   │   │   └── AppRoutes.jsx
+│   │   ├── pages/
+│   │   │   ├── Landing.jsx
+│   │   │   ├── Login.jsx
+│   │   │   ├── Register.jsx
+│   │   │   ├── Subscription.jsx
+│   │   │   ├── Onboarding.jsx
+│   │   │   ├── Dashboard.jsx
+│   │   │   ├── Leads.jsx
+│   │   │   ├── Sources.jsx
+│   │   │   ├── Campaigns.jsx
+│   │   │   ├── Automation.jsx
+│   │   │   └── Settings.jsx
+│   │   ├── components/
+│   │   │   ├── layout/
+│   │   │   │   ├── Sidebar.jsx
+│   │   │   │   ├── Topbar.jsx
+│   │   │   │   └── AppLayout.jsx
+│   │   │   ├── leads/
+│   │   │   │   ├── LeadTable.jsx
+│   │   │   │   ├── LeadFilters.jsx
+│   │   │   │   ├── LeadCard.jsx
+│   │   │   │   └── BulkActions.jsx
+│   │   │   ├── sources/
+│   │   │   │   ├── SourceCard.jsx
+│   │   │   │   ├── CsvUpload.jsx
+│   │   │   │   ├── ApiConnector.jsx
+│   │   │   │   ├── ScraperToggle.jsx
+│   │   │   │   └── AreaRunner.jsx
+│   │   │   ├── automation/
+│   │   │   │   ├── CampaignBuilder.jsx
+│   │   │   │   ├── EmailSettings.jsx
+│   │   │   │   ├── CallingSettings.jsx
+│   │   │   │   ├── WhatsAppSettings.jsx
+│   │   │   │   └── MeetingSettings.jsx
+│   │   │   ├── settings/
+│   │   │   │   ├── ApiKeyVault.jsx
+│   │   │   │   ├── TeamMembers.jsx
+│   │   │   │   └── BillingSection.jsx
+│   │   │   └── ui/
+│   │   │       ├── Button.jsx
+│   │   │       ├── Input.jsx
+│   │   │       ├── Modal.jsx
+│   │   │       ├── Badge.jsx
+│   │   │       ├── Table.jsx
+│   │   │       ├── Toggle.jsx
+│   │   │       └── Toast.jsx
+│   │   ├── hooks/
+│   │   │   ├── useAuth.js
+│   │   │   ├── useLeads.js
+│   │   │   ├── useSources.js
+│   │   │   └── useWorkspace.js
+│   │   ├── store/
+│   │   │   ├── authStore.js            (Zustand)
+│   │   │   ├── leadStore.js
+│   │   │   └── workspaceStore.js
+│   │   ├── api/
+│   │   │   ├── axios.js                (base instance + interceptors)
+│   │   │   ├── authApi.js
+│   │   │   ├── leadApi.js
+│   │   │   ├── sourceApi.js
+│   │   │   ├── integrationApi.js
+│   │   │   ├── automationApi.js
+│   │   │   └── dashboardApi.js
+│   │   └── utils/
+│   │       ├── formatters.js
+│   │       └── validators.js
+│   ├── index.html
+│   ├── vite.config.js
+│   ├── tailwind.config.js
+│   └── package.json
+│
+└── scraper-service/                     (Node.js microservice)
+    ├── index.js
+    ├── scrapers/
+    │   ├── linkedinScraper.js
+    │   ├── indiamartScraper.js
+    │   └── baseScraper.js
+    └── package.json                     (playwright, express, axios)
+
+=============================================================
+MONGODB COLLECTIONS — FULL SCHEMAS
+=============================================================
+
+users {
+  _id, email, passwordHash, firstName, lastName,
+  plan: enum(FREE, PRO, ENTERPRISE),
+  credits: Number,
+  workspaceId: ObjectId,
+  isVerified: Boolean,
+  createdAt, updatedAt
+}
+
+workspaces {
+  _id, name, ownerId,
+  members: [{ userId, role: enum(OWNER, ADMIN, MEMBER) }],
+  settings: { timezone, currency, defaultSource },
+  createdAt
+}
+
+leads {
+  _id, workspaceId,
+  firstName, lastName, email, phone, company,
+  industry, companySize, location, city, region,
+  source: String,          (where it came from)
+  sourceId: ObjectId,      (reference to source)
+  status: enum(NEW, CONTACTED, QUALIFIED, MEETING_BOOKED, 
+               CONVERTED, DEAD),
+  score: Number (0-100),
+  tags: [String],
+  customFields: Map<String, Object>,
+  lastContactedAt,
+  createdAt, updatedAt
+}
+
+sources {
+  _id, workspaceId, name,
+  type: enum(CSV, SCRAPER_API, CUSTOM_SCRAPER, PLATFORM),
+  isActive: Boolean,
+  config: {
+    apiEndpoint: String,
+    authType: enum(BEARER, API_KEY_HEADER, API_KEY_PARAM, BASIC),
+    encryptedAuthValue: String,
+    method: enum(GET, POST),
+    requestBody: Object,
+    responsePath: String,
+    fieldMappings: [{ sourceField, targetField }],
+    paginationType: enum(NONE, OFFSET, CURSOR),
+    paginationConfig: Object
+  },
+  schedule: {
+    enabled: Boolean,
+    cron: String
+  },
+  lastRun, lastRunStatus, leadsAdded,
+  createdAt
+}
+
+scraperSources {
+  _id, workspaceId,
+  platform: enum(LINKEDIN, INDIAMART, JUSTDIAL, 
+                  TRADEINDIA, SULEKHA, CUSTOM),
+  isEnabled: Boolean,
+  targetUrl: String,
+  extractFields: [String],
+  schedule: { enabled, cron },
+  lastRun, status
+}
+
+apiKeys {
+  _id, workspaceId,
+  service: String,         (APOLLO, GHL, HUBSPOT, TWILIO, etc)
+  label: String,
+  encryptedKey: String,    (AES-256)
+  addedAt, lastUsedAt
+}
+
+campaigns {
+  _id, workspaceId, name,
+  steps: [{
+    stepType: enum(EMAIL, CALL, WHATSAPP, WAIT, MEETING),
+    delayHours: Number,
+    config: Object
+  }],
+  leadIds: [ObjectId],
+  status: enum(DRAFT, ACTIVE, PAUSED, COMPLETED),
+  stats: { sent, opened, replied, called, meetings },
+  createdAt
+}
+
+emailProviders {
+  _id, workspaceId,
+  label: String,
+  host, port, username,
+  encryptedPassword: String,
+  fromName, fromEmail,
+  replyToEmail: String,
+  isDefault: Boolean,
+  isActive: Boolean
+}
+
+callConfigs {
+  _id, workspaceId,
+  provider: enum(TWILIO, EXOTEL, PLIVO, VAPI, 
+                  KNOWLARITY, SERVETEL),
+  label: String,
+  encryptedCredentials: Object,
+  fromNumber: String,
+  isDefault: Boolean
+}
+
+whatsappConfigs {
+  _id, workspaceId,
+  provider: enum(TWILIO_WA, WATI, INTERAKT, 
+                  360DIALOG, GUPSHUP),
+  label: String,
+  encryptedCredentials: Object,
+  fromNumber: String,
+  isDefault: Boolean
+}
+
+meetingConfigs {
+  _id, workspaceId,
+  provider: enum(CALENDLY, CAL_COM, GOOGLE_CALENDAR),
+  encryptedCredentials: Object,
+  bookingLink: String,
+  isDefault: Boolean
+}
+
+areaRuns {
+  _id, workspaceId,
+  filters: {
+    region: String,
+    city: String,
+    industries: [String],
+    companySizes: [String],
+    sources: [String]
+  },
+  status: enum(RUNNING, COMPLETED, FAILED),
+  leadsAdded: Number,
+  errors: [String],
+  startedAt, completedAt
+}
+
+subscriptions {
+  _id, userId, workspaceId,
+  plan: enum(FREE, PRO, ENTERPRISE),
+  status: enum(ACTIVE, EXPIRED, CANCELLED),
+  leadsUsed, leadsLimit,
+  expiresAt,
+  paymentGateway: enum(RAZORPAY, STRIPE),
+  paymentId, orderId,
+  createdAt
+}
+
+=============================================================
+ALL REST API ENDPOINTS
+=============================================================
+
+AUTH
+POST   /api/auth/register
+POST   /api/auth/login
+POST   /api/auth/refresh
+POST   /api/auth/forgot-password
+POST   /api/auth/reset-password
+POST   /api/auth/logout
+
+LEADS
+GET    /api/leads               (paginated, filterable)
+POST   /api/leads               (create single)
+GET    /api/leads/:id
+PUT    /api/leads/:id
+DELETE /api/leads/:id
+POST   /api/leads/bulk-delete
+POST   /api/leads/export        (returns CSV download)
+GET    /api/leads/stats
+
+SOURCES
+GET    /api/sources
+POST   /api/sources
+GET    /api/sources/:id
+PUT    /api/sources/:id
+DELETE /api/sources/:id
+POST   /api/sources/:id/run
+POST   /api/sources/:id/test
+POST   /api/sources/csv-upload
+
+SCRAPER SOURCES
+GET    /api/scrapers
+POST   /api/scrapers
+PUT    /api/scrapers/:id/toggle   (enable/disable)
+POST   /api/scrapers/:id/run
+
+INTEGRATIONS
+GET    /api/integrations
+POST   /api/integrations          (add generic API connector)
+POST   /api/integrations/:id/test
+POST   /api/integrations/:id/run
+POST   /api/integrations/apollo/search
+POST   /api/integrations/ghl/sync
+POST   /api/integrations/apify/run
+
+AREA RUNNER
+POST   /api/area-run              (trigger with filters)
+GET    /api/area-run/history
+
+API KEYS
+GET    /api/api-keys
+POST   /api/api-keys
+DELETE /api/api-keys/:id
+GET    /api/api-keys/services     (list of supported services)
+
+CAMPAIGNS
+GET    /api/campaigns
+POST   /api/campaigns
+GET    /api/campaigns/:id
+PUT    /api/campaigns/:id
+DELETE /api/campaigns/:id
+POST   /api/campaigns/:id/start
+POST   /api/campaigns/:id/pause
+GET    /api/campaigns/:id/stats
+
+EMAIL
+GET    /api/automation/email/providers
+POST   /api/automation/email/providers
+PUT    /api/automation/email/providers/:id
+DELETE /api/automation/email/providers/:id
+POST   /api/automation/email/providers/:id/test
+POST   /api/automation/email/send
+
+CALLING
+GET    /api/automation/calling/configs
+POST   /api/automation/calling/configs
+PUT    /api/automation/calling/configs/:id
+DELETE /api/automation/calling/configs/:id
+POST   /api/automation/calling/call
+GET    /api/automation/calling/providers    (returns list of 6+ providers)
+
+WHATSAPP
+GET    /api/automation/whatsapp/configs
+POST   /api/automation/whatsapp/configs
+PUT    /api/automation/whatsapp/configs/:id
+POST   /api/automation/whatsapp/send
+GET    /api/automation/whatsapp/providers
+
+MEETINGS
+GET    /api/automation/meetings/configs
+POST   /api/automation/meetings/configs
+POST   /api/automation/meetings/book
+GET    /api/automation/meetings/providers
+
+DASHBOARD
+GET    /api/dashboard/stats
+GET    /api/dashboard/recent-leads
+GET    /api/dashboard/source-breakdown
+GET    /api/dashboard/campaign-performance
+
+SUBSCRIPTION
+GET    /api/subscription/plans
+POST   /api/subscription/checkout
+POST   /api/subscription/webhook/razorpay
+POST   /api/subscription/webhook/stripe
+GET    /api/subscription/current
+
+=============================================================
+SPECIFIC IMPLEMENTATION DETAILS
+=============================================================
+
+--- GenericApiRunner.java ---
+Must handle:
+- Build HTTP request from IntegrationConfig
+- Auth types: BEARER, API_KEY_HEADER, API_KEY_PARAM, BASIC
+- Navigate JSON response using Jackson JsonPointer to responsePath
+- Apply fieldMappings to each record
+- Handle pagination: OFFSET (?page=N&limit=100), 
+  CURSOR (next_cursor in response), LINK_HEADER
+- Deduplicate leads by email before saving
+- Return count of leads added
+
+--- AES-256 Encryption (EncryptionUtil.java) ---
+- All API keys, SMTP passwords, calling credentials 
+  encrypted before MongoDB storage
+- Never log or return raw keys
+- Decrypt only at runtime when making API calls
+
+--- BaseCallProvider interface ---
+Methods:
+  initiateCall(String toNumber, String fromNumber, 
+               String callbackUrl): CallResult
+  getCallStatus(String callId): CallStatus
+  hangupCall(String callId): void
+
+Implement for: Twilio, Exotel, Plivo, VAPI, 
+               Knowlarity, Servetel
+
+--- BaseWhatsAppProvider interface ---
+Methods:
+  sendMessage(String toNumber, String message, 
+              String mediaUrl): MessageResult
+  sendTemplate(String toNumber, String templateId, 
+               Map<String,String> params): MessageResult
+
+Implement for: Twilio WhatsApp, WATI, 
+               Interakt, 360dialog, Gupshup
+
+--- BaseScraperSource interface ---
+Methods:
+  scrape(ScraperConfig config): List<Lead>
+  isAvailable(): Boolean
+
+Each scraper source calls the Node.js Playwright 
+microservice running on port 3001
+
+--- Node.js Scraper Microservice ---
+Express server on port 3001
+POST /scrape { platform, url, fields[] }
+Uses Playwright (headless Chromium)
+Returns: { leads: [], count: N, errors: [] }
+
+--- Application.yml ---
+spring:
+  data:
+    mongodb:
+      uri: ${MONGODB_URI}
+  redis:
+    host: ${REDIS_HOST}
+    port: 6379
+  servlet:
+    multipart:
+      max-file-size: 50MB
+
+jwt:
+  secret: ${JWT_SECRET}
+  access-expiry: 900000       # 15 minutes
+  refresh-expiry: 604800000   # 7 days
+
+encryption:
+  key: ${AES_KEY}             # 32-byte key for AES-256
+
+aws:
+  s3:
+    bucket: ${S3_BUCKET}
+    region: ${AWS_REGION}
+
+=============================================================
+FRONTEND REQUIREMENTS
+=============================================================
+
+State management: Zustand
+HTTP client: Axios with interceptors for JWT refresh
+Routing: React Router v6 (protected routes)
+UI components: TailwindCSS + Lucide React icons
+Forms: React Hook Form + Zod validation
+Notifications: React Hot Toast
+
+Pages to build fully:
+
+1. Landing Page — hero, features section, pricing cards 
+   (Free/Pro/Enterprise), testimonials, CTA buttons
+
+2. Login / Register — clean form, JWT stored in 
+   httpOnly cookie, redirect to dashboard on success
+
+3. Onboarding — 3 steps: connect first source, 
+   add API key, import first leads
+
+4. Dashboard — stats cards, leads chart, recent leads 
+   table, source breakdown, area runner panel
+
+5. Leads Page — full filterable table, bulk select, 
+   export CSV, status update, score display
+
+6. Sources Page — 
+   Tab 1: Scraper APIs (add Apify, custom API endpoint)
+   Tab 2: Custom Scraper (LinkedIn, IndiaMart toggles)
+   Tab 3: Platform Integrations (Apollo, GHL, HubSpot)
+   Tab 4: CSV Upload (drag and drop)
+
+7. Automation Page —
+   Tab 1: Email (add SMTP providers, set reply-to, test)
+   Tab 2: Calling (select provider from dropdown of 6+, 
+           add credentials, set default)
+   Tab 3: WhatsApp (select provider, connect account)
+   Tab 4: Meetings (connect Calendly / Cal.com)
+
+8. Campaigns Page — create sequence with steps 
+   (Email → Wait → Call → WhatsApp), assign leads, 
+   view stats
+
+9. Settings Page —
+   Tab 1: API Key Vault (add/delete keys per service)
+   Tab 2: Team Members (invite, set role)
+   Tab 3: Billing (current plan, usage, upgrade button)
+   Tab 4: Notifications preferences
+
+=============================================================
+SECURITY RULES
+=============================================================
+
+- All endpoints except /api/auth/** require valid JWT
+- Rate limit: 100 requests/min per user via Redis
+- CORS: only allow frontend domain
+- MongoDB queries must use parameterized inputs
+- All credentials AES-256 encrypted, never returned 
+  in API responses (return masked version: ****xxxx)
+- Scraper microservice runs isolated, not exposed externally
+- Validate and sanitize all CSV data before import
+- Subscription check middleware on lead import endpoints
+
+=============================================================
+WHAT TO GENERATE
+=============================================================
+
+Generate ALL of the following with complete working code:
+
+1. All Spring Boot files with full implementation 
+   (not just stubs — actual working code)
+2. All React pages and components
+3. All MongoDB document classes with annotations
+4. All repository interfaces
+5. application.yml with all config keys
+6. pom.xml with all dependencies
+7. package.json for frontend with all dependencies
+8. Node.js scraper microservice (index.js + scrapers)
+9. .env.example files for both backend and frontend
+10. README.md with setup instructions
+
+Do not skip any file. Do not use placeholder comments 
+like "// implement later". Write complete, 
+production-ready code for every file.
+```
+
+---
+
+That's your full scaffold prompt. Paste it directly into **Cursor** (CMD+L → Agent mode) or **Claude Code** in your terminal. It will generate the entire project in one shot.
+
+After it finishes, tell me and we'll go through each module to refine and make it fully production-ready.

@@ -1,0 +1,306 @@
+Here's the full understanding document:
+
+---
+
+# LeadFlow — Complete System Understanding Document
+
+---
+
+## What Is LeadFlow
+
+LeadFlow is a business tool that helps companies find potential customers (leads) and then automatically reach out to them through multiple channels like email, phone calls, WhatsApp, and meetings — all from one platform.
+
+Think of it like this: instead of manually searching LinkedIn, exporting CSVs, copy-pasting into a CRM, and then separately sending emails — LeadFlow does all of that in one place, automatically.
+
+---
+
+## Who Is It For
+
+Small and medium businesses, sales teams, and marketing agencies who need to generate leads at scale. Especially useful for:
+
+- Real estate companies targeting buyers in specific cities
+- SaaS companies targeting IT companies of a certain size
+- Agencies running outreach for multiple clients
+- Any business that does B2B sales
+
+---
+
+## The Two Core Jobs
+
+**Job 1 — Get Leads In**
+Pull contact data from as many sources as possible, clean it, deduplicate it, and store it.
+
+**Job 2 — Act On Leads**
+Once leads are in, automatically reach out via email, calls, WhatsApp, and schedule meetings — in a structured sequence.
+
+---
+
+## Part 1 — Sources (How Leads Come In)
+
+There are four ways leads enter the system:
+
+---
+
+### Source Type 1 — Third Party Scraper APIs
+
+Services like Apify, Bright Data, ScraperAPI already have scrapers built. LeadFlow connects to them via their REST APIs.
+
+How it works:
+- User goes to Settings, adds their Apify API key
+- Configures which Apify actor (scraper) to run
+- LeadFlow calls Apify's API, gets the data back as JSON
+- Maps the JSON fields to LeadFlow's lead fields
+- Saves the leads into MongoDB
+
+Why this approach: These services handle all the complexity of scraping at scale — proxies, CAPTCHAs, browser rendering. User just pays for their API and LeadFlow consumes the results.
+
+---
+
+### Source Type 2 — Custom Built-In Scraper
+
+LeadFlow has its own scraper engine powered by a Node.js microservice running Playwright (a headless browser). This runs separately from the Spring Boot backend.
+
+Supported platforms (can be toggled ON/OFF per workspace):
+- LinkedIn
+- IndiaMart
+- JustDial
+- TradeIndia
+- Sulekha
+- Any custom URL the user defines
+
+How it works:
+- User goes to Sources → Custom Scraper
+- Sees a list of platforms with ON/OFF toggles
+- Turns on IndiaMart for example
+- Sets target URL, fields to extract, and a schedule
+- LeadFlow's Spring Boot backend sends the job to the Node.js scraper service
+- Node.js uses Playwright to open the page, extract data, return JSON
+- Spring Boot saves the leads
+
+The scraper microservice runs isolated on its own port (3001) so even if a bad URL crashes it, the main app is unaffected.
+
+---
+
+### Source Type 3 — Platform Integrations
+
+Direct connections to existing sales and CRM platforms:
+
+Apollo.io — search by location, industry, company size via their API. Returns verified contacts with email and phone.
+
+GoHighLevel — two-way sync. Leads pulled in from GHL, and converted leads can be pushed back.
+
+HubSpot — import contacts from an existing HubSpot CRM.
+
+Generic API Connector — this is the most powerful one. User can connect literally any REST API by:
+- Pasting the base URL
+- Choosing auth type (Bearer token, API key, Basic auth)
+- Mapping their response fields to LeadFlow fields
+- Choosing pagination type
+
+This means HubSpot, Zoho, Salesforce, Freshsales, Clearbit, Hunter.io, ZoomInfo — any of them — can be connected without writing new code.
+
+---
+
+### Source Type 4 — CSV Upload
+
+Simplest method. User uploads a CSV file:
+- File goes to AWS S3
+- Spring Boot streams and parses it using Apache Commons CSV
+- Each row is validated and mapped to lead fields
+- Duplicates are removed by checking email and phone
+- Clean leads are saved to MongoDB
+
+---
+
+### Area Runner
+
+This is a special feature that sits on top of all sources. Instead of running one source at a time, user sets a multi-level filter and runs all selected sources simultaneously:
+
+Filter levels:
+1. Region (North India, South India, West India, Global etc.)
+2. City (Lucknow, Mumbai, Delhi etc.)
+3. Industry (Real Estate, IT/SaaS, Manufacturing, Retail etc.)
+4. Company Size (1–10, 11–50, 51–200, 200+ employees)
+5. Sources to use (Apollo + Custom Scraper + Apify etc.)
+
+When user hits Run — Spring Boot fires all selected sources in parallel, collects results, deduplicates across all of them, and dumps a clean lead list into the database. User sees a live count of leads added.
+
+---
+
+## Part 2 — Automation (How LeadFlow Reaches Out)
+
+Once leads are in, there are four outreach channels:
+
+---
+
+### Channel 1 — Email
+
+User adds their own SMTP server configuration from the UI:
+- Host, port, username, password
+- From name and email address
+- Reply-to email (can be different from sender — important for tracking replies)
+- Can add multiple SMTP providers and set one as default
+
+Supports any SMTP provider — Gmail, Outlook, SendGrid, Mailgun, Postmark, custom mail server.
+
+How sending works:
+- Campaign step triggers email
+- Spring Boot reads the workspace's default email provider
+- Decrypts the SMTP password
+- Sends via JavaMail
+- Tracks open rate (via tracking pixel) and reply detection
+
+---
+
+### Channel 2 — Phone Calling
+
+User can choose from 6+ calling providers and switch anytime from the UI:
+
+1. Twilio — most popular globally
+2. Exotel — popular in India, cheaper for Indian numbers
+3. Plivo — good alternative, competitive pricing
+4. VAPI — AI-powered voice calls, can run automated scripts
+5. Knowlarity — India-focused enterprise calling
+6. Servetel — another India-focused option
+
+How it works:
+- Each provider has its own connector class in the backend implementing a common interface
+- User adds credentials for their chosen provider in Settings
+- Campaign step triggers a call
+- Spring Boot calls the selected provider's API
+- Call is initiated to the lead's phone number
+- Status (answered, voicemail, failed) is tracked and saved
+
+Adding a new provider in the future only requires writing one new connector class — nothing else changes.
+
+---
+
+### Channel 3 — WhatsApp
+
+User connects a WhatsApp Business account via one of these providers:
+
+1. Twilio WhatsApp — easiest setup, works with existing Twilio account
+2. WATI — popular in India, good template management
+3. Interakt — India-focused, integrates with Shopify and CRMs
+4. 360dialog — Meta's official partner, best for high volume
+5. Gupshup — oldest WhatsApp API provider in India
+
+How it works:
+- User connects provider, gets a WhatsApp Business number linked
+- Campaign step sends a message or a pre-approved template
+- Supports text messages and media (images, PDFs, documents)
+- Replies can be tracked and shown in a conversation view
+
+---
+
+### Channel 4 — Scheduled Meetings
+
+When a lead responds positively, the next step is booking a meeting. Three options:
+
+1. Calendly — user connects their Calendly account, LeadFlow sends the booking link automatically in an email or WhatsApp message
+2. Cal.com — open source alternative to Calendly, same idea
+3. Google Calendar — direct integration, creates a meeting invite and sends it to the lead
+
+---
+
+## Campaigns — Putting It All Together
+
+A campaign is a sequence of steps that runs automatically:
+
+Example campaign:
+- Day 1: Send intro email
+- Day 2: Wait
+- Day 3: Send WhatsApp follow-up
+- Day 5: Trigger a call
+- Day 7: Send meeting booking link
+- Day 10: Send final email
+
+User creates this sequence in the Campaign Builder, assigns a list of leads to it, and hits Start. The system automatically executes each step for each lead based on the timing, and tracks every interaction.
+
+---
+
+## API Key Vault
+
+Every integration requires credentials — API keys, tokens, passwords. LeadFlow has a centralized vault:
+
+- User adds keys from Settings → API Key Vault
+- Each key is encrypted with AES-256 before being stored in MongoDB
+- The raw key is never stored, never logged, never returned in API responses
+- When an integration needs to make a call, the backend decrypts it in memory, uses it, and discards it
+- In the UI, keys are shown masked — for example sk-****xxxx
+
+---
+
+## Subscription System
+
+Three plans:
+
+Free — 500 leads per month, CSV and one integration, basic email sending
+
+Pro — Unlimited leads, all integrations, all calling providers, all WhatsApp providers, campaigns, team members
+
+Enterprise — Everything in Pro plus white-label option, dedicated scraper capacity, priority support, custom limits
+
+Payment via:
+- Razorpay for Indian users
+- Stripe for international users
+
+When a payment is confirmed via webhook, the subscription status in MongoDB is updated and the workspace gets access to the corresponding features.
+
+---
+
+## Security Approach
+
+Every API endpoint except login and register requires a valid JWT token. Tokens expire in 15 minutes, refresh tokens last 7 days.
+
+All stored credentials are AES-256 encrypted. Rate limiting is enforced via Redis — 100 requests per minute per user. CORS is locked to the frontend domain only.
+
+The scraper microservice is not exposed to the internet — it only accepts calls from the Spring Boot backend on an internal network.
+
+---
+
+## Pages Summary
+
+Landing Page — explains the product, shows pricing, lets users sign up
+
+Login / Register — standard auth flow with JWT
+
+Onboarding — 3-step wizard to get the first source connected, first API key added, first leads imported
+
+Dashboard — overview of lead counts, campaign performance, source breakdown, area runner
+
+Leads Page — full table with search, filter by status/industry/city/source, bulk actions, CSV export
+
+Sources Page — manage all four source types from one place with tabs
+
+Automation Page — configure email, calling, WhatsApp, and meeting providers
+
+Campaigns Page — build and manage outreach sequences
+
+Settings Page — API key vault, team management, billing, notifications
+
+---
+
+## How Everything Connects
+
+```
+User sets filters in Area Runner
+        ↓
+Spring Boot fires jobs to Apollo + Scraper + Apify in parallel
+        ↓
+Results deduplicated and saved as Leads in MongoDB
+        ↓
+User creates a Campaign and assigns those leads
+        ↓
+Campaign engine executes:
+  Email (via user's SMTP)
+  → WhatsApp (via WATI or Twilio)
+  → Call (via Exotel or Twilio)
+  → Meeting link (via Calendly)
+        ↓
+All interactions tracked, stats shown on Dashboard
+```
+
+---
+
+That's the complete picture of what LeadFlow is, how every part works, and why each decision was made. Ask me anything you want to go deeper on.
