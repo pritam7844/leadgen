@@ -1,16 +1,18 @@
 package com.leadflow.arearun;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 
 @Service
-@RequiredArgsConstructor
 public class AreaRunService {
 
     private final AreaRunRepository areaRunRepository;
+
+    public AreaRunService(AreaRunRepository areaRunRepository) {
+        this.areaRunRepository = areaRunRepository;
+    }
 
     public AreaRun startRun(String workspaceId, AreaRun.Filters filters) {
         AreaRun run = new AreaRun();

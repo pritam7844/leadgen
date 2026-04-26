@@ -23,6 +23,7 @@ const PLATFORMS = [
   { key: 'JUSTDIAL', label: 'JustDial' },
   { key: 'TRADEINDIA', label: 'TradeIndia' },
   { key: 'SULEKHA', label: 'Sulekha' },
+  { key: 'GOOGLE_MAPS', label: 'Google Maps' },
 ]
 
 const PLATFORM_INTEGRATIONS = [
@@ -69,8 +70,13 @@ export default function Sources() {
   })
 
   const toggleScraper = async (id) => {
-    const res = await sourceApi.toggleScraper(id)
-    setScrapers(prev => prev.map(s => s.id === id ? res.data.data : s))
+    try {
+      const res = await sourceApi.toggleScraper(id)
+      setScrapers(prev => prev.map(s => s.id === id ? res.data.data : s))
+      toast.success('Scraper status updated')
+    } catch {
+      toast.error('Failed to update scraper')
+    }
   }
 
   const runScraper = async (id) => {
@@ -198,10 +204,15 @@ export default function Sources() {
                   </Button>
                 )}
                 <Toggle
-                  checked={sc?.isEnabled || false}
+                  checked={!!sc?.isEnabled}
                   onChange={sc ? () => toggleScraper(sc.id) : async () => {
-                    const res = await sourceApi.createScraper({ platform: key, isEnabled: true })
-                    setScrapers(prev => [...prev, res.data.data])
+                    try {
+                      const res = await sourceApi.createScraper({ platform: key, isEnabled: true })
+                      setScrapers(prev => [...prev, res.data.data])
+                      toast.success(`${label} scraper initialized`)
+                    } catch {
+                      toast.error('Failed to initialize scraper')
+                    }
                   }}
                 />
               </div>

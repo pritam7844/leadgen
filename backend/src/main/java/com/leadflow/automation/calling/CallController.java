@@ -2,7 +2,6 @@ package com.leadflow.automation.calling;
 
 import com.leadflow.common.response.ApiResponse;
 import com.leadflow.user.User;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -14,10 +13,13 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/automation/calling")
-@RequiredArgsConstructor
 public class CallController {
 
     private final CallConfigRepository callConfigRepository;
+
+    public CallController(CallConfigRepository callConfigRepository) {
+        this.callConfigRepository = callConfigRepository;
+    }
 
     @GetMapping("/configs")
     public ResponseEntity<ApiResponse<List<CallConfig>>> getConfigs(@AuthenticationPrincipal User user) {

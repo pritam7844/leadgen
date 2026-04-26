@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { useAuthStore } from '../store/authStore'
+import logger from '../utils/logger'
 
 const api = axios.create({
   baseURL: '/api',
@@ -9,6 +10,8 @@ const api = axios.create({
 api.interceptors.request.use((config) => {
   const token = useAuthStore.getState().token
   if (token) config.headers.Authorization = `Bearer ${token}`
+  
+  logger.api('request', config.method, config.url, config.data)
   return config
 })
 
@@ -16,8 +19,13 @@ let isRefreshing = false
 let queue = []
 
 api.interceptors.response.use(
-  (res) => res,
+  (res) => {
+    logger.api('response', res.config.method, res.config.url, res.data)
+    return res
+  },
   async (err) => {
+    logger.api('error', err.config?.method || 'unknown', err.config?.url || 'unknown', err.response?.data || err.message)
+    
     const original = err.config
     if (err.response?.status === 401 && !original._retry) {
       original._retry = true
@@ -32,6 +40,7 @@ api.interceptors.response.use(
       isRefreshing = true
       const refreshToken = useAuthStore.getState().refreshToken
       try {
+        logger.info('Attempting token refresh...')
         const res = await axios.post('/api/auth/refresh', { refreshToken })
         const { accessToken, user } = res.data.data
         useAuthStore.getState().setAuth(accessToken, refreshToken, user)
@@ -39,7 +48,8 @@ api.interceptors.response.use(
         queue = []
         original.headers.Authorization = `Bearer ${accessToken}`
         return api(original)
-      } catch {
+      } catch (refreshErr) {
+        logger.error('Token refresh failed', refreshErr)
         useAuthStore.getState().logout()
         queue.forEach((p) => p.reject())
         queue = []

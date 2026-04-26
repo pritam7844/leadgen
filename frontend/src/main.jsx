@@ -4,10 +4,13 @@ import { BrowserRouter } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import App from './App'
 import './index.css'
+import logger from './utils/logger'
+
+logger.info('LeadFlow Frontend initialized')
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <BrowserRouter>
+    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <App />
       <Toaster
         position="top-right"

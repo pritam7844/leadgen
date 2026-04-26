@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.leadflow.lead.Lead;
 import com.leadflow.lead.LeadService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -12,11 +11,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-@RequiredArgsConstructor
 public class GenericApiRunner {
 
     private final LeadService leadService;
     private final ObjectMapper objectMapper;
+
+    public GenericApiRunner(LeadService leadService, ObjectMapper objectMapper) {
+        this.leadService = leadService;
+        this.objectMapper = objectMapper;
+    }
 
     public int run(String workspaceId, IntegrationConfig config) {
         WebClient client = WebClient.builder()

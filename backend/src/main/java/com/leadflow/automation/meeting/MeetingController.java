@@ -2,7 +2,6 @@ package com.leadflow.automation.meeting;
 
 import com.leadflow.common.response.ApiResponse;
 import com.leadflow.user.User;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -14,10 +13,13 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/automation/meetings")
-@RequiredArgsConstructor
 public class MeetingController {
 
     private final MeetingConfigRepository meetingConfigRepository;
+
+    public MeetingController(MeetingConfigRepository meetingConfigRepository) {
+        this.meetingConfigRepository = meetingConfigRepository;
+    }
 
     @GetMapping("/configs")
     public ResponseEntity<ApiResponse<List<MeetingConfig>>> getConfigs(@AuthenticationPrincipal User user) {

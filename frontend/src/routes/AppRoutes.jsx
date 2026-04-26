@@ -9,6 +9,7 @@ import Leads from '../pages/Leads'
 import Sources from '../pages/Sources'
 import Campaigns from '../pages/Campaigns'
 import Automation from '../pages/Automation'
+import Meetings from '../pages/Meetings'
 import Settings from '../pages/Settings'
 import Onboarding from '../pages/Onboarding'
 import Subscription from '../pages/Subscription'
@@ -40,6 +41,7 @@ export default function AppRoutes() {
         <Route path="/sources" element={<Sources />} />
         <Route path="/campaigns" element={<Campaigns />} />
         <Route path="/automation" element={<Automation />} />
+        <Route path="/meetings" element={<Meetings />} />
         <Route path="/settings" element={<Settings />} />
       </Route>
 

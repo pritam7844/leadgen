@@ -2,7 +2,6 @@ package com.leadflow.apikey;
 
 import com.leadflow.common.exception.LeadFlowException;
 import com.leadflow.common.util.EncryptionUtil;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -11,11 +10,15 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-@RequiredArgsConstructor
 public class ApiKeyService {
 
     private final ApiKeyRepository apiKeyRepository;
     private final EncryptionUtil encryptionUtil;
+
+    public ApiKeyService(ApiKeyRepository apiKeyRepository, EncryptionUtil encryptionUtil) {
+        this.apiKeyRepository = apiKeyRepository;
+        this.encryptionUtil = encryptionUtil;
+    }
 
     private static final List<String> SUPPORTED_SERVICES = List.of(
             "APOLLO", "GHL", "HUBSPOT", "APIFY", "TWILIO", "EXOTEL", "PLIVO",

@@ -2,7 +2,6 @@ package com.leadflow.automation.email;
 
 import com.leadflow.common.exception.LeadFlowException;
 import com.leadflow.common.util.EncryptionUtil;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
@@ -15,11 +14,15 @@ import java.util.Map;
 import java.util.Properties;
 
 @Service
-@RequiredArgsConstructor
 public class EmailService {
 
     private final EmailProviderRepository emailProviderRepository;
     private final EncryptionUtil encryptionUtil;
+
+    public EmailService(EmailProviderRepository emailProviderRepository, EncryptionUtil encryptionUtil) {
+        this.emailProviderRepository = emailProviderRepository;
+        this.encryptionUtil = encryptionUtil;
+    }
 
     public List<EmailProvider> findByWorkspace(String workspaceId) {
         List<EmailProvider> providers = emailProviderRepository.findByWorkspaceId(workspaceId);

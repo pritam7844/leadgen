@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Users, Phone, Calendar, CreditCard, PlayCircle, CheckCircle } from 'lucide-react'
 import { dashboardApi } from '../api/dashboardApi'
 import { leadApi } from '../api/leadApi'
+import { sourceApi } from '../api/sourceApi'
 import { formatRelative, formatNumber, statusBadge, scoreColor } from '../utils/formatters'
 import { Badge } from '../components/ui/Badge'
 import { BarChart, Bar, XAxis, ResponsiveContainer, Tooltip } from 'recharts'
@@ -44,24 +45,55 @@ export default function Dashboard() {
   const [running, setRunning] = useState(false)
   const [runResult, setRunResult] = useState(null)
 
-  useEffect(() => {
-    dashboardApi.getStats().then(r => setStats(r.data.data)).catch(() => {})
+  const fetchLeads = () => {
     leadApi.getLeads({ page: 0, size: 8, sortBy: 'createdAt', sortDir: 'desc' })
       .then(r => setRecentLeads(r.data.data.content || [])).catch(() => {})
-  }, [])
+    dashboardApi.getStats().then(r => setStats(r.data.data)).catch(() => {})
+  }
 
   const toggleArr = (arr, setArr, val) =>
     setArr(arr.includes(val) ? arr.filter(x => x !== val) : [...arr, val])
+
+  useEffect(() => {
+    fetchLeads()
+  }, [])
 
   const runArea = async () => {
     if (!region) return
     setRunning(true)
     setRunResult(null)
-    setTimeout(() => {
-      const count = Math.floor(150 + Math.random() * 300)
-      setRunResult(count)
+    
+    try {
+      const scrapersRes = await sourceApi.getScrapers()
+      let gMapsScraper = scrapersRes.data.data.find(s => s.platform === 'GOOGLE_MAPS')
+      
+      if (!gMapsScraper) {
+        // Automatically create it if missing
+        const createRes = await sourceApi.createScraper({ platform: 'GOOGLE_MAPS', isEnabled: true })
+        gMapsScraper = createRes.data.data
+      } else if (!gMapsScraper.isEnabled) {
+        // Automatically enable it if disabled
+        const toggleRes = await sourceApi.toggleScraper(gMapsScraper.id)
+        gMapsScraper = toggleRes.data.data
+      }
+
+      const res = await sourceApi.runScraper(gMapsScraper.id)
+      
+      if (res.data.data.status === 'accepted') {
+        setRunResult('Scraping started in background...')
+        // Refresh leads every 5 seconds for a minute to show progress
+        const interval = setInterval(fetchLeads, 5000)
+        setTimeout(() => clearInterval(interval), 60000)
+      } else {
+        setRunResult(res.data.data.leadsAdded)
+      }
+      fetchLeads()
+    } catch (err) {
+      console.error('Run failed:', err)
+      setRunResult('Error')
+    } finally {
       setRunning(false)
-    }, 2800)
+    }
   }
 
   const chartData = Array.from({ length: 30 }, (_, i) => ({

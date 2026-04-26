@@ -2,7 +2,6 @@ package com.leadflow.automation.whatsapp;
 
 import com.leadflow.common.response.ApiResponse;
 import com.leadflow.user.User;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -14,10 +13,13 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/automation/whatsapp")
-@RequiredArgsConstructor
 public class WhatsAppController {
 
     private final WhatsAppConfigRepository whatsAppConfigRepository;
+
+    public WhatsAppController(WhatsAppConfigRepository whatsAppConfigRepository) {
+        this.whatsAppConfigRepository = whatsAppConfigRepository;
+    }
 
     @GetMapping("/configs")
     public ResponseEntity<ApiResponse<List<WhatsAppConfig>>> getConfigs(@AuthenticationPrincipal User user) {

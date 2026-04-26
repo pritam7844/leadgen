@@ -1,13 +1,11 @@
 package com.leadflow.subscription;
 
-import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
 
-@Data
 @Document(collection = "subscriptions")
 public class Subscription {
 
@@ -23,6 +21,15 @@ public class Subscription {
     private String paymentGateway;
     private String paymentId;
     private String orderId;
+
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+    public String getUserId() { return userId; }
+    public void setUserId(String userId) { this.userId = userId; }
+    public String getWorkspaceId() { return workspaceId; }
+    public void setWorkspaceId(String workspaceId) { this.workspaceId = workspaceId; }
+    public Plan getPlan() { return plan; }
+    public void setPlan(Plan plan) { this.plan = plan; }
 
     @CreatedDate
     private Instant createdAt;

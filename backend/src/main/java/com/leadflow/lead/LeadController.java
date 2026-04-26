@@ -4,7 +4,6 @@ import com.leadflow.common.response.ApiResponse;
 import com.leadflow.lead.dto.LeadFilterRequest;
 import com.leadflow.lead.dto.LeadRequest;
 import com.leadflow.user.User;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -15,10 +14,13 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/leads")
-@RequiredArgsConstructor
 public class LeadController {
 
     private final LeadService leadService;
+
+    public LeadController(LeadService leadService) {
+        this.leadService = leadService;
+    }
 
     @GetMapping
     public ResponseEntity<ApiResponse<Page<Lead>>> getLeads(

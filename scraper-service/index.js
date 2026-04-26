@@ -3,6 +3,7 @@ const cors = require('cors')
 const helmet = require('helmet')
 const { scrapeLinkedIn } = require('./scrapers/linkedinScraper')
 const { scrapeIndiamart } = require('./scrapers/indiamartScraper')
+const { scrapeGoogleMaps } = require('./scrapers/googleMapsScraper')
 const { BaseScraper } = require('./scrapers/baseScraper')
 
 const app = express()
@@ -24,6 +25,7 @@ app.post('/scrape', async (req, res) => {
   const scraperMap = {
     LINKEDIN: scrapeLinkedIn,
     INDIAMART: scrapeIndiamart,
+    GOOGLE_MAPS: scrapeGoogleMaps,
   }
 
   const scraperFn = scraperMap[platform.toUpperCase()]

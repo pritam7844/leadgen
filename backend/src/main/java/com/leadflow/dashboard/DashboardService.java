@@ -4,7 +4,6 @@ import com.leadflow.automation.campaign.CampaignRepository;
 import com.leadflow.lead.Lead;
 import com.leadflow.lead.LeadRepository;
 import com.leadflow.source.SourceRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -15,12 +14,18 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class DashboardService {
 
     private final LeadRepository leadRepository;
     private final SourceRepository sourceRepository;
     private final CampaignRepository campaignRepository;
+
+    public DashboardService(LeadRepository leadRepository, SourceRepository sourceRepository,
+                            CampaignRepository campaignRepository) {
+        this.leadRepository = leadRepository;
+        this.sourceRepository = sourceRepository;
+        this.campaignRepository = campaignRepository;
+    }
 
     public Map<String, Object> getStats(String workspaceId) {
         Map<String, Object> stats = new HashMap<>();

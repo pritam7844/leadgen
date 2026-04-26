@@ -2,7 +2,6 @@ package com.leadflow.integration;
 
 import com.leadflow.common.response.ApiResponse;
 import com.leadflow.user.User;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -12,11 +11,15 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/integrations")
-@RequiredArgsConstructor
 public class IntegrationController {
 
     private final IntegrationRepository integrationRepository;
     private final GenericApiRunner genericApiRunner;
+
+    public IntegrationController(IntegrationRepository integrationRepository, GenericApiRunner genericApiRunner) {
+        this.integrationRepository = integrationRepository;
+        this.genericApiRunner = genericApiRunner;
+    }
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<IntegrationConfig>>> getIntegrations(

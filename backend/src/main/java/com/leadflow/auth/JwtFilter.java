@@ -4,7 +4,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,12 +18,18 @@ import java.io.IOException;
 import java.time.Duration;
 
 @Component
-@RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
     private final RedisTemplate<String, String> redisTemplate;
+
+    public JwtFilter(JwtService jwtService, UserDetailsService userDetailsService, 
+                     RedisTemplate<String, String> redisTemplate) {
+        this.jwtService = jwtService;
+        this.userDetailsService = userDetailsService;
+        this.redisTemplate = redisTemplate;
+    }
 
     @Override
     protected void doFilterInternal(

@@ -2,7 +2,6 @@ package com.leadflow.scraper;
 
 import com.leadflow.common.response.ApiResponse;
 import com.leadflow.user.User;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -12,11 +11,15 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/scrapers")
-@RequiredArgsConstructor
 public class ScraperController {
 
     private final ScraperRepository scraperRepository;
     private final ScraperService scraperService;
+
+    public ScraperController(ScraperRepository scraperRepository, ScraperService scraperService) {
+        this.scraperRepository = scraperRepository;
+        this.scraperService = scraperService;
+    }
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<ScraperConfig>>> getScrapers(@AuthenticationPrincipal User user) {

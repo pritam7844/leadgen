@@ -24,15 +24,21 @@ export function Badge({ status, label, custom }) {
 
 export function Toggle({ checked, onChange, label }) {
   return (
-    <label className="flex items-center gap-2 cursor-pointer">
+    <label className="flex items-center gap-2 cursor-pointer group">
       <div
-        className="relative w-9 h-5 rounded-full transition-all"
+        className="relative w-9 h-5 rounded-full transition-all duration-200"
         style={{ background: checked ? '#FF6B1A' : '#2a2a2a' }}
-        onClick={() => onChange(!checked)}
+        onClick={(e) => {
+          e.preventDefault();
+          onChange(!checked);
+        }}
       >
-        <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all ${checked ? 'left-5' : 'left-0.5'}`} />
+        <div 
+          className="absolute top-1 w-3 h-3 rounded-full bg-white transition-all duration-200 shadow-sm" 
+          style={{ left: checked ? '20px' : '4px' }}
+        />
       </div>
-      {label && <span className="text-xs text-[#A8A8A8]">{label}</span>}
+      {label && <span className="text-xs text-[#A8A8A8] group-hover:text-[#F2F2F2] transition-colors">{label}</span>}
     </label>
   )
 }

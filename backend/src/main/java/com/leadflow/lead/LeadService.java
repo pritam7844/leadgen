@@ -4,7 +4,6 @@ import com.leadflow.common.exception.LeadFlowException;
 import com.leadflow.common.util.PaginationUtil;
 import com.leadflow.lead.dto.LeadFilterRequest;
 import com.leadflow.lead.dto.LeadRequest;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -18,11 +17,15 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-@RequiredArgsConstructor
 public class LeadService {
 
     private final LeadRepository leadRepository;
     private final MongoTemplate mongoTemplate;
+
+    public LeadService(LeadRepository leadRepository, MongoTemplate mongoTemplate) {
+        this.leadRepository = leadRepository;
+        this.mongoTemplate = mongoTemplate;
+    }
 
     public Page<Lead> findLeads(String workspaceId, LeadFilterRequest filter) {
         Pageable pageable = PaginationUtil.of(filter.getPage(), filter.getSize(),

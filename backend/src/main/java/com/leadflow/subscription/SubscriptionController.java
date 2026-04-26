@@ -2,7 +2,6 @@ package com.leadflow.subscription;
 
 import com.leadflow.common.response.ApiResponse;
 import com.leadflow.user.User;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -12,10 +11,13 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/subscription")
-@RequiredArgsConstructor
 public class SubscriptionController {
 
     private final SubscriptionRepository subscriptionRepository;
+
+    public SubscriptionController(SubscriptionRepository subscriptionRepository) {
+        this.subscriptionRepository = subscriptionRepository;
+    }
 
     @GetMapping("/plans")
     public ResponseEntity<ApiResponse<List<Map<String, Object>>>> getPlans() {

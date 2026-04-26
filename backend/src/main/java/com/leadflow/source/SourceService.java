@@ -5,7 +5,6 @@ import com.leadflow.common.util.EncryptionUtil;
 import com.leadflow.lead.Lead;
 import com.leadflow.lead.LeadService;
 import com.leadflow.source.types.CsvImportService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,13 +13,20 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-@RequiredArgsConstructor
 public class SourceService {
 
     private final SourceRepository sourceRepository;
     private final EncryptionUtil encryptionUtil;
     private final CsvImportService csvImportService;
     private final LeadService leadService;
+
+    public SourceService(SourceRepository sourceRepository, EncryptionUtil encryptionUtil, 
+                         CsvImportService csvImportService, LeadService leadService) {
+        this.sourceRepository = sourceRepository;
+        this.encryptionUtil = encryptionUtil;
+        this.csvImportService = csvImportService;
+        this.leadService = leadService;
+    }
 
     public List<Source> findByWorkspace(String workspaceId) {
         return sourceRepository.findByWorkspaceId(workspaceId);

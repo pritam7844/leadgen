@@ -1,6 +1,5 @@
 package com.leadflow.source;
 
-import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -10,7 +9,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
-@Data
 @Document(collection = "sources")
 public class Source {
 
@@ -32,9 +30,23 @@ public class Source {
     @CreatedDate
     private Instant createdAt;
 
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+    public String getWorkspaceId() { return workspaceId; }
+    public void setWorkspaceId(String workspaceId) { this.workspaceId = workspaceId; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public SourceType getType() { return type; }
+    public void setType(SourceType type) { this.type = type; }
+    public boolean isActive() { return isActive; }
+    public void setActive(boolean active) { isActive = active; }
+    public Config getConfig() { return config; }
+    public void setConfig(Config config) { this.config = config; }
+    public Schedule getSchedule() { return schedule; }
+    public void setSchedule(Schedule schedule) { this.schedule = schedule; }
+
     public enum SourceType { CSV, SCRAPER_API, CUSTOM_SCRAPER, PLATFORM }
 
-    @Data
     public static class Config {
         private String apiEndpoint;
         private String authType;
@@ -45,17 +57,29 @@ public class Source {
         private List<FieldMapping> fieldMappings;
         private String paginationType = "NONE";
         private Map<String, Object> paginationConfig;
+
+        public String getApiEndpoint() { return apiEndpoint; }
+        public void setApiEndpoint(String apiEndpoint) { this.apiEndpoint = apiEndpoint; }
+        public String getAuthType() { return authType; }
+        public void setAuthType(String authType) { this.authType = authType; }
+        public String getMethod() { return method; }
+        public void setMethod(String method) { this.method = method; }
+        public String getEncryptedAuthValue() { return encryptedAuthValue; }
+        public void setEncryptedAuthValue(String encryptedAuthValue) { this.encryptedAuthValue = encryptedAuthValue; }
+        // Add more getters/setters as needed or just basic ones
     }
 
-    @Data
     public static class FieldMapping {
         private String sourceField;
         private String targetField;
     }
 
-    @Data
     public static class Schedule {
         private boolean enabled = false;
         private String cron;
+        public boolean isEnabled() { return enabled; }
+        public void setEnabled(boolean enabled) { this.enabled = enabled; }
+        public String getCron() { return cron; }
+        public void setCron(String cron) { this.cron = cron; }
     }
 }

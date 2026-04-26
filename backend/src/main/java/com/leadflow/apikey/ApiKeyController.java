@@ -2,7 +2,6 @@ package com.leadflow.apikey;
 
 import com.leadflow.common.response.ApiResponse;
 import com.leadflow.user.User;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -12,10 +11,13 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/api-keys")
-@RequiredArgsConstructor
 public class ApiKeyController {
 
     private final ApiKeyService apiKeyService;
+
+    public ApiKeyController(ApiKeyService apiKeyService) {
+        this.apiKeyService = apiKeyService;
+    }
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<ApiKey>>> getKeys(@AuthenticationPrincipal User user) {

@@ -2,7 +2,6 @@ package com.leadflow.automation.campaign;
 
 import com.leadflow.common.response.ApiResponse;
 import com.leadflow.user.User;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -12,10 +11,13 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/campaigns")
-@RequiredArgsConstructor
 public class CampaignController {
 
     private final CampaignRepository campaignRepository;
+
+    public CampaignController(CampaignRepository campaignRepository) {
+        this.campaignRepository = campaignRepository;
+    }
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<Campaign>>> getCampaigns(@AuthenticationPrincipal User user) {

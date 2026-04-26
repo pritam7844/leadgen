@@ -2,7 +2,6 @@ package com.leadflow.automation.email;
 
 import com.leadflow.common.response.ApiResponse;
 import com.leadflow.user.User;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -12,10 +11,13 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/automation/email")
-@RequiredArgsConstructor
 public class EmailController {
 
     private final EmailService emailService;
+
+    public EmailController(EmailService emailService) {
+        this.emailService = emailService;
+    }
 
     @GetMapping("/providers")
     public ResponseEntity<ApiResponse<List<EmailProvider>>> getProviders(@AuthenticationPrincipal User user) {

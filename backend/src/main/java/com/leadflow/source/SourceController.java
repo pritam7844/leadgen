@@ -2,7 +2,6 @@ package com.leadflow.source;
 
 import com.leadflow.common.response.ApiResponse;
 import com.leadflow.user.User;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -13,10 +12,13 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/sources")
-@RequiredArgsConstructor
 public class SourceController {
 
     private final SourceService sourceService;
+
+    public SourceController(SourceService sourceService) {
+        this.sourceService = sourceService;
+    }
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<Source>>> getSources(@AuthenticationPrincipal User user) {

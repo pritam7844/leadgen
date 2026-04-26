@@ -1,15 +1,17 @@
 package com.leadflow.workspace;
 
 import com.leadflow.common.exception.LeadFlowException;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
 public class WorkspaceService {
 
     private final WorkspaceRepository workspaceRepository;
+
+    public WorkspaceService(WorkspaceRepository workspaceRepository) {
+        this.workspaceRepository = workspaceRepository;
+    }
 
     public Workspace createWorkspace(String name, String ownerId) {
         Workspace workspace = new Workspace();

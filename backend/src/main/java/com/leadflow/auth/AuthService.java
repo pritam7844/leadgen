@@ -8,7 +8,6 @@ import com.leadflow.user.User;
 import com.leadflow.user.UserRepository;
 import com.leadflow.workspace.Workspace;
 import com.leadflow.workspace.WorkspaceService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,7 +19,6 @@ import java.time.Duration;
 import java.util.Map;
 
 @Service
-@RequiredArgsConstructor
 public class AuthService {
 
     private final UserRepository userRepository;
@@ -29,6 +27,17 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final RedisTemplate<String, String> redisTemplate;
+
+    public AuthService(UserRepository userRepository, WorkspaceService workspaceService,
+                       JwtService jwtService, PasswordEncoder passwordEncoder,
+                       AuthenticationManager authenticationManager, RedisTemplate<String, String> redisTemplate) {
+        this.userRepository = userRepository;
+        this.workspaceService = workspaceService;
+        this.jwtService = jwtService;
+        this.passwordEncoder = passwordEncoder;
+        this.authenticationManager = authenticationManager;
+        this.redisTemplate = redisTemplate;
+    }
 
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
